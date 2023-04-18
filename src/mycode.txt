@@ -1,0 +1,265 @@
+//appfile
+
+import Addtask from "./components/addtask";
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
+import '../node_modules/bootstrap/dist/js/bootstrap.min.js'
+import './App.css'
+
+import { useState } from "react";
+import Listtask from "./components/listtask";
+import Updatetodo from "./components/editodo";
+function App() {
+  const [addnewtask,setAddnewtask]= useState('')
+  const [todo,setTodo] = useState([])
+  const [updatetask,setUpdattask]=useState('')
+  // console.log(todo)
+  const addtask=()=>{
+      if(addnewtask){
+        let num = todo.length+1;
+        let newdata = {id:num,title:addnewtask}
+        setTodo([...todo,newdata])
+        setAddnewtask('')
+      }
+  }
+
+  const deleteTask = (id) => {
+    let newTasks = todo.filter( task => task.id !== id)
+    setTodo(newTasks);
+  }
+  
+  const changemytask = (e) => {
+    let newEntry = {
+      id: updatetask.id,
+      title: e.target.value,
+    }
+    setUpdattask(newEntry);
+  }
+  const updatedata = () => {
+    let filterRecords = [...todo].filter( task => task.id !== updatetask.id );
+    // let updatedObject = [...filterRecords, updatetask]
+    setTodo([...filterRecords, updatetask]);
+    setUpdattask('');
+  }
+  return (
+    <div className="App">
+      
+    {updatetask && updatetask ?(
+      <Updatetodo
+         updatedata={updatedata}
+        updatetask={updatetask}
+        changemytask={changemytask}
+        
+      />
+    ):(
+      <Addtask
+        addnewtask={addnewtask}
+        setAddnewtask={setAddnewtask}
+        addtask={addtask}
+      />
+    )}
+      
+      <Listtask
+        todo={todo}
+        setUpdattask={setUpdattask}
+        deleteTask={deleteTask}
+      />
+      
+    </div>
+  );
+}
+
+export default App;
+
+
+// adtask
+
+import React from 'react'
+
+// import Listtask from './listtask';
+export default  function Addtask({addtask,setAddnewtask,addnewtask}) {
+  return (
+    <>
+      <h3 className='mt-5'> welcome to your todo app</h3>
+    <div className='container'>
+
+           
+            <input className='form form-control' 
+            placeholder='enter some task'
+            name='task'
+            value={addnewtask}
+            onChange={(e)=>setAddnewtask(e.target.value)}
+            ></input>
+            <button className='btn bg-primary mx-3'
+            type={"submit"}
+            onClick={addtask}>Add Task</button>
+    </div>
+    </>
+  )
+}
+
+//edittodo
+
+import React from 'react'
+
+export default function Updatetodo({updatetask,updateData,changemytask}) {
+  return (
+    <div>
+       <div className="row row2">
+        <div className="col ">
+          <input 
+            value={ updatetask && updatetask.title }
+           onChange={(e)=>changemytask(e)}
+            className="form-control"
+          />
+        </div>
+        <div className="col-auto">
+          <button
+            onClick={updateData}
+            className="btn btn-success mr-10"
+          >Update</button>
+          
+        </div>
+      </div>
+    </div>
+  )
+}
+// add todo
+
+import React from "react";
+
+export default function Listtask({ todo, setUpdattask, deleteTask }) {
+  return (
+    <div className="lists">
+      {todo &&
+        todo
+          .sort((a, b) => (a.id > b.id ? 1 : -1))
+          .map((obj) => {
+            return (
+              <div key={obj.id} className="taskbg">
+                <div className="col ">
+                  {/* <span className='tasknum'>{index+1}</span> */}
+                  <span className="tasktite">{obj.title}</span>
+                </div>
+                <div className="btnclass">
+                  <span>
+                    <button
+                      id="btn1"
+                      className=" btn bg-warning"
+                      onClick={() =>
+                        setUpdattask({
+                          id: obj.id,
+                          title: obj.title,
+                        })
+                      }
+                    >
+                      Edit
+                    </button>
+                  </span>
+                  <span title="Delete"
+                  onClick={() => deleteTask(obj.id)}
+                >
+                  <button>delete</button>
+                
+                </span>
+                </div>
+                {/* <button className='btn bg-danger'
+                 onClick={() => deletask(task.id)}>delete all</button> */}
+              </div>
+            );
+          })}
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React, { useState } from 'react';
+
+function App() {
+  const [todos, setTodos] = useState([]);
+  const [inputValue, setInputValue] = useState('');
+  const [editingIndex, setEditingIndex] = useState(-1);
+  const [editValue, setEditValue] = useState('');
+
+  const handleInputChange = (event) => {
+    setInputValue(event.target.value);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (!inputValue) return;
+    if (editingIndex === -1) {
+      setTodos([...todos, { text: inputValue, completed: false }]);
+    } else {
+      const newTodos = [...todos];
+      newTodos[editingIndex].text = inputValue;
+      setTodos(newTodos);
+      setEditingIndex(-1);
+      setEditValue('');
+    }
+    setInputValue('');
+  };
+
+  const handleEdit = (index) => {
+    setEditingIndex(index);
+    setEditValue(todos[index].text);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingIndex(-1);
+    setEditValue('');
+    setInputValue('');
+  };
+
+  return (
+    <div>
+      <h1>Todo App</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Add todo..."
+          value={editingIndex === -1 ? inputValue : editValue}
+          onChange={handleInputChange}
+        />
+        <button type="submit">{editingIndex === -1 ? 'Add' : 'Save'}</button>
+        {editingIndex !== -1 && <button type="button" onClick={handleCancelEdit}>Cancel</button>}
+      </form>
+      <ul>
+        {todos.map((todo, index) => (
+          <li key={index}>
+            <span style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>{todo.text}</span>
+            <button onClick={() => handleEdit(index)}>Edit</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
